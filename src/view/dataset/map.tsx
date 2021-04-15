@@ -14,25 +14,24 @@ const ReactMap = ReactMapboxGl({
 
 function Map() {
   const [state, dispatch] = useContext(DatasetContext);
-  const _dataset = filterDataset(state.dataset, state.filter);
+  // basically its better to store formatted data in context
+  const map_data = filterDataset(state.map_data, state.filter);
   const [selected, setSelected] = useState(null);
-  const center = useMemo<[number, number]>(() => [+_dataset[0].longitude, +_dataset[0].latitude], [state.filter]);
-  const dataset = useMemo(() => _dataset, [state.filter]);
 
   return (
     <Section>
       <ReactMap
         style="mapbox://styles/mapbox/dark-v9"
-        center={center}
+        center={state.map_center}
         containerStyle={{
           height: "calc(100vh - 400px)",
           width: "calc(100% - 40px)",
         }}
       >
         <Layer type="symbol" id="marker" layout={{"icon-image": "marker-15"}}>
-          {dataset.map((datum) => {
+          {map_data.map((datum) => {
             return (
-              <Feature key={datum.standid} coordinates={[+datum.longitude, +datum.latitude]}
+              <Feature key={datum.standid} coordinates={datum.coordinates}
                        onClick={($event: any) => setSelected(datum)}/>
             );
           })}
@@ -40,7 +39,7 @@ function Map() {
 
         {selected &&
         <Popup
-            coordinates={[+selected.longitude, +selected.latitude]}
+            coordinates={selected.coordinates}
             onClick={() => setSelected(null)}
             anchor="top">
             <ul>

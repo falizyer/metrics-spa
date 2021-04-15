@@ -13,9 +13,11 @@ export interface DatasetMap {
 const defaultValue = {
   dataset: [],
   filter: {},
+  map_center: [0, 0],
+  map_data: [],
 };
 
-export const DatasetContext = createContext<[{dataset: DatasetMap[], filter: {}}, any]>([defaultValue, () => void 0]);
+export const DatasetContext = createContext<[{dataset: DatasetMap[], filter: {}, map_center: [number, number], map_data: any[]}, any]>([defaultValue as any, () => void 0]);
 
 function DatasetReducer(state, action) {
   switch (action.type) {
@@ -23,6 +25,13 @@ function DatasetReducer(state, action) {
       return {
         ...state,
         dataset: action.payload,
+        map_center: [+action.payload[0].longitude, +action.payload[0].latitude],
+        map_data: action.payload.map(payload => {
+          return {
+            ...payload,
+            coordinates: [+payload.longitude, +payload.latitude]
+          }
+        })
       };
     case "DATASET/FILTER":
       if (action.payload.title === "Any") {
