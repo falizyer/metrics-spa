@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from "react";
+import React, {useContext, useMemo, useState} from "react";
 import ReactMapboxGl, {Layer, Feature, Popup} from "react-mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -13,9 +13,8 @@ const ReactMap = ReactMapboxGl({
 });
 
 function Map() {
-  const [state, dispatch] = useContext(DatasetContext);
-  // basically its better to store formatted data in context
-  const map_data = filterDataset(state.map_data, state.filter);
+  const [state] = useContext(DatasetContext);
+  const map_data = useMemo(() => filterDataset(state.map_data, state.filter), [state.map_data, state.filter]);
   const [selected, setSelected] = useState(null);
 
   return (

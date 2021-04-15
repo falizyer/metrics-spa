@@ -1,5 +1,5 @@
 import React from "react";
-import {NavLink, Redirect, withRouter} from "react-router-dom";
+import {NavLink, withRouter} from "react-router-dom";
 
 import styled from "styled-components";
 import LimitedBlock from "./limited-block";

@@ -1,30 +1,38 @@
-import React, {useCallback, useContext} from "react";
-import {groupBy} from "lodash";
+import React, {useCallback, useContext, useMemo} from "react";
 
 import Section from "component/section";
 import DataSetRoutes from "./dataset.routes";
 import DatasetContextProvider, {DatasetContext} from "./dataset.context";
-import FileArea from "../component/file-area";
+import FileArea from "component/file-area";
 import {csvJSON} from "utils";
-import Nav from "../component/nav";
-import Dropdown from "../component/dropdown";
+import Nav from "component/nav";
+import Dropdown from "component/dropdown";
+
+function DataHOC() {
+  const [state, dispatch] = useContext(DatasetContext);
+
+  return (
+    <>
+      <DatasetControls dispatch={dispatch}/>
+      <DataSetRoutes/>
+      <DatasetAdditionalInfo main_species={state.main_species} dispatch={dispatch}/>
+    </>
+  );
+}
 
 function Dataset() {
   return (
     <DatasetContextProvider>
-      <DatasetControls/>
-      <DataSetRoutes/>
-      <DatasetAdditionalInfo/>
+      <DataHOC/>
     </DatasetContextProvider>
   );
 }
 
-function DatasetAdditionalInfo() {
-  const [state, dispatch] = useContext(DatasetContext);
-
-  const items = Object.keys(groupBy(state.dataset, "main_species"))
-    .filter(key => key !== "undefined")
-    .map(key => ({title: key, value: "main_species"}));
+function DatasetAdditionalInfo({main_species, dispatch}) {
+  const items = useMemo(() => main_species.map(key => ({
+    title: key,
+    value: "main_species"
+  })), [main_species]);
 
   const onDataSetFilter = useCallback($event => {
     dispatch({
@@ -34,16 +42,14 @@ function DatasetAdditionalInfo() {
   }, [dispatch]);
 
   return (
-    !!state.dataset.length &&
+    !!main_species.length &&
     <Section direction="row">
         <Dropdown label="main_species" items={items} onChange={onDataSetFilter}/>
     </Section>
   );
 }
 
-function DatasetControls() {
-  const [state, dispatch] = useContext(DatasetContext);
-
+function DatasetControls({dispatch}) {
   const onDataSetLoad = useCallback(async $event => {
     dispatch({
       type: "DATASET/LOAD",

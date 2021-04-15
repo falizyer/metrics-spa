@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useMemo, useRef, useState} from "react";
 import * as d3 from "d3";
 
 import Section from "component/section";
@@ -6,17 +6,16 @@ import {DatasetContext} from "view/dataset.context";
 
 import {filterDataset} from "utils";
 
-
 function Histogram() {
   const [state] = useContext(DatasetContext);
-  const [margin] = useState({top: 10, right: 30, bottom: 30, left: 40});
-  const [width] = useState(460 - margin.left - margin.right);
-  const [height] = useState(400 - margin.top - margin.bottom);
+  const [margin] = useState(() => ({top: 10, right: 30, bottom: 30, left: 40}));
+  const [width] = useState(() => 460 - margin.left - margin.right);
+  const [height] = useState(() => 400 - margin.top - margin.bottom);
+  const dataset = useMemo<any>(() => filterDataset(state.dataset, state.filter), [state.dataset, state.filter]);
   const ref = useRef();
 
   useEffect(() => {
-    if (ref?.current) {
-      const dataset: any[] = filterDataset(state.dataset, state.filter);
+    if (ref?.current && dataset.length) {
       // append the svg object to the body of the page
       const svg = d3.select(ref.current)
         .attr("width", width + margin.left + margin.right)
@@ -28,8 +27,8 @@ function Histogram() {
       // X axis: scale and draw:
       const x = d3.scaleLinear()
         .domain([
-          +d3.min(dataset, datum => +datum.vol_m3_per_ha),
-          +d3.max(dataset, datum => +datum.vol_m3_per_ha)
+          +d3.min<any, any>(dataset, datum => +datum.vol_m3_per_ha),
+          +d3.max<any, any>(dataset, datum => +datum.vol_m3_per_ha)
         ])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
         .range([0, width]);
       svg.append("g")
@@ -78,7 +77,7 @@ function Histogram() {
         svg.remove();
       }
     }
-  });
+  }, [dataset]);
 
   return (
     <Section>

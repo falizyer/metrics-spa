@@ -1,4 +1,5 @@
-import React, {createContext, useReducer} from "react";
+import React, {createContext, useMemo, useReducer} from "react";
+import {groupBy} from "lodash";
 
 export interface DatasetMap {
   standid: string;
@@ -15,9 +16,10 @@ const defaultValue = {
   filter: {},
   map_center: [0, 0],
   map_data: [],
+  main_species: [],
 };
 
-export const DatasetContext = createContext<[{dataset: DatasetMap[], filter: {}, map_center: [number, number], map_data: any[]}, any]>([defaultValue as any, () => void 0]);
+export const DatasetContext = createContext<[{ dataset: DatasetMap[], filter: {}, map_center: [number, number], map_data: any[], main_species: string[] }, any]>([defaultValue as any, () => void 0]);
 
 function DatasetReducer(state, action) {
   switch (action.type) {
@@ -31,7 +33,9 @@ function DatasetReducer(state, action) {
             ...payload,
             coordinates: [+payload.longitude, +payload.latitude]
           }
-        })
+        }),
+        main_species: Object.keys(groupBy(action.payload, "main_species"))
+          .filter(key => key !== "undefined")
       };
     case "DATASET/FILTER":
       if (action.payload.title === "Any") {
@@ -53,9 +57,11 @@ function DatasetReducer(state, action) {
 
 function DatasetContextProvider({children}) {
   const [state, dispatch] = useReducer(DatasetReducer, defaultValue);
+  const value = useMemo<any>(() => [state, dispatch], [state]);
+
 
   return (
-    <DatasetContext.Provider value={[state, dispatch]}>
+    <DatasetContext.Provider value={value}>
       {children}
     </DatasetContext.Provider>
   );
