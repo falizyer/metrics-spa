@@ -24,6 +24,7 @@ export const DatasetContext = createContext<[{ dataset: DatasetMap[], filter: {}
 function DatasetReducer(state, action) {
   switch (action.type) {
     case "DATASET/LOAD":
+      action.payload = action.payload.sort((prev, next) => +prev.vol_m3_per_ha - +next.vol_m3_per_ha);
       return {
         ...state,
         dataset: action.payload,

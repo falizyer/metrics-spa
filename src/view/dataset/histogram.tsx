@@ -80,7 +80,7 @@ function Histogram() {
         svg.remove();
       }
     }
-  }, [dataset]);
+  });
 
   // useEffect(() => {
   //   if (ref?.current && dataset.length) {
