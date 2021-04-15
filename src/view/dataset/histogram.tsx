@@ -57,10 +57,12 @@ function Histogram() {
         .call(d3.axisLeft(y));
 
       // append the bar rectangles to the svg element
-      svg.selectAll("rect.datum")
+      const selection = svg.selectAll("rect.datum")
         .data(bins)
         .enter()
-        .append("rect")
+
+      selection.append("rect")
+        .attr("class", "datum")
         .attr("x", 1)
         .attr("transform", function (d) {
           return "translate(" + x(d.x0) + "," + y(d.length) + ")";
@@ -73,11 +75,57 @@ function Histogram() {
         })
         .style("fill", "#69b3a2");
 
+      selection.exit().remove();
       return () => {
         svg.remove();
       }
     }
   }, [dataset]);
+
+  // useEffect(() => {
+  //   if (ref?.current && dataset.length) {
+  //     const svg = d3.select(ref.current);
+  //
+  //     const x = d3.scaleLinear()
+  //       .domain([
+  //         +d3.min<any, any>(dataset, datum => +datum.vol_m3_per_ha),
+  //         +d3.max<any, any>(dataset, datum => +datum.vol_m3_per_ha)
+  //       ])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+  //       .range([0, width]);
+  //     svg.select("g.axis-bottom")
+  //       .call(d3.axisBottom(x));
+  //
+  //     const histogram = d3.histogram()
+  //       .value(function (d: any) {
+  //         return d.vol_m3_per_ha;
+  //       })
+  //       .domain(x.domain() as any)  // then the domain of the graphic
+  //       .thresholds(x.ticks(10));
+  //     const bins = histogram(dataset as any);
+  //     const y = d3.scaleLinear()
+  //       .range([height, 0]);
+  //     y.domain([0, d3.max(bins, function (d) {
+  //       return d.length;
+  //     })]);   // d3.hist has to be called before the Y axis obviously
+  //     svg.select("g.axis-left")
+  //       .call(d3.axisLeft(y));
+  //
+  //     const selection = svg.selectAll("rect.datum")
+  //       .data(bins)
+  //       .attr("x", 1)
+  //       .attr("transform", function (d) {
+  //         return "translate(" + x(d.x0) + "," + y(d.length) + ")";
+  //       })
+  //       .attr("width", function (d) {
+  //         return x(d.x1) - x(d.x0) - 1;
+  //       })
+  //       .attr("height", function (d) {
+  //         return height - y(d.length);
+  //       });
+  //
+  //     selection.exit().remove();
+  //   }
+  // }, [dataset]);
 
   return (
     <Section>
